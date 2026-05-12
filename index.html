@@ -143,6 +143,10 @@
       place-items: center;
     }
 
+    button.nav-link {
+      font-weight: 700;
+    }
+
     .button {
       min-height: 44px;
       padding: 0 16px;
@@ -547,6 +551,24 @@
       align-items: start;
     }
 
+    .master-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(49, 240, 165, 0.08);
+    }
+
+    .master-bar p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
     .panel {
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -619,6 +641,24 @@
 
     .order-item {
       grid-template-columns: minmax(150px, 1fr) minmax(140px, 0.7fr) auto;
+    }
+
+    .status-badge {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 0 9px;
+      border-radius: var(--radius);
+      color: #080808;
+      background: var(--sun);
+      font-size: 0.75rem;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .status-badge.done {
+      background: var(--mint);
     }
 
     .inventory-item img,
@@ -914,6 +954,10 @@
         display: grid;
       }
 
+      .master-bar {
+        display: grid;
+      }
+
       .product-info h3,
       .product-info p {
         min-height: 0;
@@ -950,7 +994,7 @@
       </a>
       <nav class="nav-actions" aria-label="Main navigation">
         <a class="nav-link" href="#drop">Shop</a>
-        <a class="nav-link" href="#studio">Studio</a>
+        <button class="nav-link" id="openMastermode" type="button">Mastermode</button>
         <button class="icon-button" id="openCart" type="button" aria-label="Open cart">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M7 8h14l-2 8H8L6 4H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -972,7 +1016,7 @@
           <p class="lede">Clean prints, wild shapes, desk candy, flexi creatures, gifts, stands, organizers, and whatever Caleb decides to make next.</p>
           <div class="hero-actions">
             <a class="button primary" href="#drop">Shop drops</a>
-            <a class="button ghost" href="#studio">Post listing</a>
+            <button class="button ghost" id="heroMastermode" type="button">Mastermode</button>
           </div>
         </div>
         <div class="hero-card" aria-label="3D print workbench">
@@ -1022,12 +1066,16 @@
       </div>
     </section>
 
-    <section class="studio-band" id="studio">
+    <section class="studio-band master-band" id="mastermode" hidden>
       <div class="shell">
+        <div class="master-bar">
+          <p><strong>Mastermode is unlocked.</strong> Post products, upload photos, update stock, and manage orders from here.</p>
+          <button class="button ghost" id="lockMastermode" type="button">Lock Mastermode</button>
+        </div>
         <div class="section-head">
           <div>
-            <p class="eyebrow">caleb studio</p>
-            <h2>post listings</h2>
+            <p class="eyebrow">secure master access</p>
+            <h2>mastermode</h2>
           </div>
           <p>Fresh pulls, clean prices, ready stock, Caleb energy.</p>
         </div>
@@ -1104,7 +1152,7 @@
       </div>
     </section>
 
-    <section class="orders-band">
+    <section class="orders-band master-band" id="masterOrders" hidden>
       <div class="shell">
         <div class="section-head">
           <div>
@@ -1127,7 +1175,7 @@
   <aside class="drawer" id="cartDrawer" aria-hidden="true" aria-label="Shopping cart">
     <div class="drawer-header">
       <h2>Cart</h2>
-      <button class="icon-button" id="closeCart" type="button" aria-label="Close cart">Ã—</button>
+      <button class="icon-button" id="closeCart" type="button" aria-label="Close cart">&times;</button>
     </div>
     <div class="cart-list" id="cartList"></div>
     <div class="drawer-footer">
@@ -1141,7 +1189,7 @@
   <section class="modal" id="checkoutModal" aria-hidden="true" aria-labelledby="checkoutTitle">
     <div class="modal-header">
       <h2 id="checkoutTitle">Checkout</h2>
-      <button class="icon-button" id="closeCheckout" type="button" aria-label="Close checkout">Ã—</button>
+      <button class="icon-button" id="closeCheckout" type="button" aria-label="Close checkout">&times;</button>
     </div>
     <div class="modal-body">
       <div id="checkoutSummary"></div>
@@ -1180,12 +1228,31 @@
     </div>
   </section>
 
+  <section class="modal" id="masterLoginModal" aria-hidden="true" aria-labelledby="masterLoginTitle">
+    <div class="modal-header">
+      <h2 id="masterLoginTitle">Mastermode Access</h2>
+      <button class="icon-button" id="closeMasterLogin" type="button" aria-label="Close Mastermode access">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form class="checkout-form" id="masterLoginForm">
+        <p class="item-meta" id="masterLoginHelp">Create a private passcode for this browser before opening Mastermode.</p>
+        <div class="field">
+          <label for="masterPasscode">Passcode</label>
+          <input class="input" id="masterPasscode" type="password" required minlength="6" autocomplete="current-password" placeholder="At least 6 characters">
+        </div>
+        <button class="button primary" id="masterLoginButton" type="submit">Unlock Mastermode</button>
+      </form>
+    </div>
+  </section>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
     const LISTINGS_KEY = "wowCaleb.listings.v1";
     const CART_KEY = "wowCaleb.cart.v1";
     const ORDERS_KEY = "wowCaleb.orders.v1";
+    const MASTER_HASH_KEY = "wowCaleb.masterHash.v1";
+    const MASTER_AUTH_KEY = "wowCaleb.masterUnlocked.session";
     const fallbackImage = "assets/product-dragon.png";
 
     const defaultListings = [
@@ -1247,6 +1314,7 @@
       listings: load(LISTINGS_KEY, defaultListings),
       cart: load(CART_KEY, []),
       orders: load(ORDERS_KEY, []),
+      masterUnlocked: sessionStorage.getItem(MASTER_AUTH_KEY) === "true",
       toastTimer: null
     };
 
@@ -1275,6 +1343,13 @@
       checkoutSummary: $("#checkoutSummary"),
       checkoutForm: $("#checkoutForm"),
       orderSuccess: $("#orderSuccess"),
+      mastermode: $("#mastermode"),
+      masterOrders: $("#masterOrders"),
+      masterLoginModal: $("#masterLoginModal"),
+      masterLoginForm: $("#masterLoginForm"),
+      masterPasscode: $("#masterPasscode"),
+      masterLoginHelp: $("#masterLoginHelp"),
+      masterLoginButton: $("#masterLoginButton"),
       toast: $("#toast"),
       imagePreview: $("#imagePreview"),
       formTitle: $("#formTitle"),
@@ -1321,6 +1396,97 @@
       els.toast.textContent = message;
       els.toast.classList.add("show");
       state.toastTimer = setTimeout(() => els.toast.classList.remove("show"), 2300);
+    }
+
+    async function hashPasscode(passcode) {
+      const clean = String(passcode || "").trim();
+      if (window.crypto && crypto.subtle && window.TextEncoder) {
+        const data = new TextEncoder().encode(`wow-caleb-mastermode:${clean}`);
+        const digest = await crypto.subtle.digest("SHA-256", data);
+        return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+      }
+
+      let hash = 0;
+      for (let i = 0; i < clean.length; i += 1) {
+        hash = ((hash << 5) - hash + clean.charCodeAt(i)) | 0;
+      }
+      return `fallback-${Math.abs(hash)}`;
+    }
+
+    function masterIsConfigured() {
+      return Boolean(localStorage.getItem(MASTER_HASH_KEY));
+    }
+
+    function revealMastermode() {
+      state.masterUnlocked = true;
+      sessionStorage.setItem(MASTER_AUTH_KEY, "true");
+      els.mastermode.hidden = false;
+      els.masterOrders.hidden = false;
+      closeMasterLogin();
+      closeCart();
+      location.hash = "#mastermode";
+      toast("Mastermode unlocked.");
+    }
+
+    function lockMastermode() {
+      state.masterUnlocked = false;
+      sessionStorage.removeItem(MASTER_AUTH_KEY);
+      els.mastermode.hidden = true;
+      els.masterOrders.hidden = true;
+      resetForm();
+      location.hash = "#shop";
+      toast("Mastermode locked.");
+    }
+
+    function openMasterLogin() {
+      if (state.masterUnlocked) {
+        revealMastermode();
+        return;
+      }
+
+      const setup = !masterIsConfigured();
+      els.masterLoginHelp.textContent = setup
+        ? "Create a private passcode for this browser before opening Mastermode."
+        : "Enter your Mastermode passcode to manage listings and orders.";
+      els.masterLoginButton.textContent = setup ? "Create and unlock" : "Unlock Mastermode";
+      els.masterPasscode.value = "";
+      els.masterLoginModal.classList.add("show");
+      els.masterLoginModal.setAttribute("aria-hidden", "false");
+      els.overlay.classList.add("show");
+      document.body.classList.add("modal-open");
+      setTimeout(() => els.masterPasscode.focus(), 0);
+    }
+
+    function closeMasterLogin() {
+      els.masterLoginModal.classList.remove("show");
+      els.masterLoginModal.setAttribute("aria-hidden", "true");
+      if (!els.cartDrawer.classList.contains("open") && !els.checkoutModal.classList.contains("show")) {
+        els.overlay.classList.remove("show");
+      }
+      document.body.classList.remove("modal-open");
+    }
+
+    async function submitMasterLogin(event) {
+      event.preventDefault();
+      const passcode = els.masterPasscode.value.trim();
+      if (passcode.length < 6) {
+        toast("Use at least 6 characters.");
+        return;
+      }
+
+      const hash = await hashPasscode(passcode);
+      const stored = localStorage.getItem(MASTER_HASH_KEY);
+      if (!stored) {
+        localStorage.setItem(MASTER_HASH_KEY, hash);
+        revealMastermode();
+        return;
+      }
+
+      if (hash === stored) {
+        revealMastermode();
+      } else {
+        toast("Wrong Mastermode passcode.");
+      }
     }
 
     function byId(id) {
@@ -1431,11 +1597,11 @@
           <img src="${escapeHtml(safeImage(listing.image))}" alt="${escapeHtml(listing.name)}">
           <div>
             <p class="item-title">${escapeHtml(listing.name)}</p>
-            <p class="item-meta">${escapeHtml(listing.category)} Â· ${money.format(listing.price)} Â· ${listing.stock} in stock</p>
+            <p class="item-meta">${escapeHtml(listing.category)} - ${money.format(listing.price)} - ${listing.stock} in stock</p>
           </div>
           <div class="item-actions">
             <button class="button ghost edit-listing" type="button" data-id="${escapeHtml(listing.id)}">Edit</button>
-            <button class="icon-button delete-listing" type="button" data-id="${escapeHtml(listing.id)}" aria-label="Delete ${escapeHtml(listing.name)}">Ã—</button>
+            <button class="icon-button delete-listing" type="button" data-id="${escapeHtml(listing.id)}" aria-label="Delete ${escapeHtml(listing.name)}">&times;</button>
           </div>
         </article>
       `).join("");
@@ -1443,27 +1609,44 @@
     }
 
     function renderOrders() {
-      els.orderStats.textContent = state.orders.length ? `${state.orders.length} saved order${state.orders.length === 1 ? "" : "s"}` : "No orders yet";
+      const openCount = state.orders.filter((order) => order.status !== "done").length;
+      const doneCount = state.orders.length - openCount;
+      els.orderStats.textContent = state.orders.length
+        ? `${openCount} open - ${doneCount} done`
+        : "No orders yet";
       if (!state.orders.length) {
         els.orderList.innerHTML = `<div class="empty-state">Orders appear after checkout.</div>`;
         return;
       }
 
-      els.orderList.innerHTML = state.orders.slice(0, 8).map((order) => `
+      const sortedOrders = [...state.orders].sort((a, b) => {
+        const aDone = a.status === "done";
+        const bDone = b.status === "done";
+        return Number(aDone) - Number(bDone) || new Date(b.createdAt) - new Date(a.createdAt);
+      });
+
+      els.orderList.innerHTML = sortedOrders.slice(0, 20).map((order) => {
+        const done = order.status === "done";
+        const itemText = order.items.map((item) => `${item.qty}x ${item.name}`).join(", ");
+        return `
         <article class="order-item">
           <div>
             <p class="item-title">${escapeHtml(order.id)}</p>
-            <p class="item-meta">${escapeHtml(order.customer.name)} Â· ${new Date(order.createdAt).toLocaleString()}</p>
+            <p class="item-meta">${escapeHtml(order.customer.name)} - ${new Date(order.createdAt).toLocaleString()}</p>
+            <p class="item-meta">${escapeHtml(order.customer.email)}</p>
           </div>
           <div>
+            <span class="status-badge ${done ? "done" : ""}">${done ? "done" : "open"}</span>
             <p class="item-title">${money.format(order.total)}</p>
-            <p class="item-meta">${order.items.length} item${order.items.length === 1 ? "" : "s"} Â· ${escapeHtml(order.payment)}</p>
+            <p class="item-meta">${escapeHtml(itemText)} - ${escapeHtml(order.payment)}</p>
           </div>
           <div class="item-actions">
             <a class="button ghost" href="mailto:${encodeURIComponent(order.customer.email)}?subject=${encodeURIComponent(`wow caleb order ${order.id}`)}">Email</a>
+            <button class="button ${done ? "ghost" : "primary"} toggle-order-status" type="button" data-id="${escapeHtml(order.id)}">${done ? "Reopen" : "Mark done"}</button>
           </div>
         </article>
-      `).join("");
+      `;
+      }).join("");
     }
 
     function renderCart() {
@@ -1486,10 +1669,10 @@
           <img src="${escapeHtml(safeImage(listing.image))}" alt="${escapeHtml(listing.name)}">
           <div>
             <p class="item-title">${escapeHtml(listing.name)}</p>
-            <p class="item-meta">${money.format(listing.price)} Â· ${listing.stock} available</p>
+            <p class="item-meta">${money.format(listing.price)} - ${listing.stock} available</p>
             <div class="cart-line">
               <div class="qty-actions">
-                <button class="icon-button change-qty" type="button" data-id="${escapeHtml(listing.id)}" data-delta="-1" aria-label="Remove one">âˆ’</button>
+                <button class="icon-button change-qty" type="button" data-id="${escapeHtml(listing.id)}" data-delta="-1" aria-label="Remove one">-</button>
                 <strong>${qty}</strong>
                 <button class="icon-button change-qty" type="button" data-id="${escapeHtml(listing.id)}" data-delta="1" aria-label="Add one" ${qty >= listing.stock ? "disabled" : ""}>+</button>
               </div>
@@ -1508,7 +1691,7 @@
         <div class="panel">
           <div class="panel-body">
             ${items.map(({ listing, qty }) => `
-              <div class="cart-line"><span>${qty} Ã— ${escapeHtml(listing.name)}</span><strong>${money.format(listing.price * qty)}</strong></div>
+              <div class="cart-line"><span>${qty} x ${escapeHtml(listing.name)}</span><strong>${money.format(listing.price * qty)}</strong></div>
             `).join("")}
             <div class="cart-line"><span>Shipping</span><strong>${total.shipping ? money.format(total.shipping) : "Free"}</strong></div>
             <div class="cart-total"><span>Total</span><strong>${money.format(total.total)}</strong></div>
@@ -1543,7 +1726,7 @@
     function closeCart() {
       els.cartDrawer.classList.remove("open");
       els.cartDrawer.setAttribute("aria-hidden", "true");
-      if (!els.checkoutModal.classList.contains("show")) {
+      if (!els.checkoutModal.classList.contains("show") && !els.masterLoginModal.classList.contains("show")) {
         els.overlay.classList.remove("show");
       }
       document.body.classList.remove("drawer-open");
@@ -1563,7 +1746,7 @@
     function closeCheckout() {
       els.checkoutModal.classList.remove("show");
       els.checkoutModal.setAttribute("aria-hidden", "true");
-      if (!els.cartDrawer.classList.contains("open")) {
+      if (!els.cartDrawer.classList.contains("open") && !els.masterLoginModal.classList.contains("show")) {
         els.overlay.classList.remove("show");
       }
       document.body.classList.remove("modal-open");
@@ -1695,7 +1878,7 @@
       els.imagePreview.src = safeImage(listing.image);
       els.formTitle.textContent = "Edit listing";
       $("#saveListing").textContent = "Update listing";
-      location.hash = "#studio";
+      location.hash = "#mastermode";
     }
 
     function deleteListing(id) {
@@ -1750,6 +1933,7 @@
       const order = {
         id: `WC-${Date.now().toString().slice(-7)}`,
         createdAt: new Date().toISOString(),
+        status: "open",
         customer: {
           name: $("#customerName").value.trim(),
           email: $("#customerEmail").value.trim(),
@@ -1782,6 +1966,17 @@
       toast("Order placed.");
     }
 
+    function toggleOrderStatus(id) {
+      const order = state.orders.find((item) => item.id === id);
+      if (!order) return;
+      const done = order.status === "done";
+      order.status = done ? "open" : "done";
+      order.completedAt = done ? "" : new Date().toISOString();
+      save(ORDERS_KEY, state.orders);
+      renderOrders();
+      toast(done ? "Order reopened." : "Order marked done.");
+    }
+
     els.searchInput.addEventListener("input", renderProducts);
     els.categoryFilter.addEventListener("change", renderProducts);
     els.sortSelect.addEventListener("change", renderProducts);
@@ -1789,9 +1984,15 @@
     $("#closeCart").addEventListener("click", closeCart);
     $("#checkoutButton").addEventListener("click", openCheckout);
     $("#closeCheckout").addEventListener("click", closeCheckout);
+    $("#openMastermode").addEventListener("click", openMasterLogin);
+    $("#heroMastermode").addEventListener("click", openMasterLogin);
+    $("#lockMastermode").addEventListener("click", lockMastermode);
+    $("#closeMasterLogin").addEventListener("click", closeMasterLogin);
+    els.masterLoginForm.addEventListener("submit", submitMasterLogin);
     els.overlay.addEventListener("click", () => {
       closeCart();
       closeCheckout();
+      closeMasterLogin();
     });
     $("#listingForm").addEventListener("submit", submitListing);
     $("#clearForm").addEventListener("click", resetForm);
@@ -1808,6 +2009,11 @@
       const del = event.target.closest(".delete-listing");
       if (edit) editListing(edit.dataset.id);
       if (del) deleteListing(del.dataset.id);
+    });
+
+    els.orderList.addEventListener("click", (event) => {
+      const toggle = event.target.closest(".toggle-order-status");
+      if (toggle) toggleOrderStatus(toggle.dataset.id);
     });
 
     els.cartList.addEventListener("click", (event) => {
@@ -1830,10 +2036,20 @@
       if (event.key === "Escape") {
         closeCart();
         closeCheckout();
+        closeMasterLogin();
       }
     });
 
+    if (state.masterUnlocked) {
+      els.mastermode.hidden = false;
+      els.masterOrders.hidden = false;
+    }
+
     renderAll();
+
+    if (location.hash === "#mastermode" && !state.masterUnlocked) {
+      openMasterLogin();
+    }
   </script>
 </body>
 </html>
