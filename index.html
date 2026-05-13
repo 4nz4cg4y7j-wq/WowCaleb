@@ -1542,7 +1542,7 @@
       toast("Name, category, price, and description are required."); return;
     }
     if (existing) state.listings = state.listings.map(l => l.id === id ? listing : l);
-    else state.listings.unshift(listing);
+    else { state.listings.unshift(listing); slider.current = 0; }
     save(LISTINGS_KEY, state.listings);
     resetForm(); renderAll();
     toast(existing ? "Listing updated." : "Listing saved.");
